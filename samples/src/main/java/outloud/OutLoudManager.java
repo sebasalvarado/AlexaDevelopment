@@ -30,6 +30,7 @@ public class OutLoudManager {
    */
   public OutLoudManager() {
     //Initialize the questions and answers
+    initializeQuestions();
   }
   
   public String getCurrentPlayer(){
@@ -87,4 +88,3 @@ public class OutLoudManager {
   
 
 }
-

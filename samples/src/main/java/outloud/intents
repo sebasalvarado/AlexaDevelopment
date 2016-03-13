@@ -1,0 +1,29 @@
+{
+  "intents": [
+    {
+      "intent": "OutLoudIntent",
+      "slots":[
+      	{"name":"Answer",
+      	"type": "AMAZON.LITERAL"
+      	}
+      	]
+    },
+    {"intent":"InitialIntent",
+    	"slots":[
+    	{"name":"First",
+    	"type":"AMAZON.LITERAL"
+    	}
+    	]
+    },
+    {"intent":"RepeatIntent",
+    	"slots":[
+    	{"name": "Repeat",
+    	"type":"AMAZON.LITERAL"
+    	}
+    	]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
-package outloud;
+package helloworld;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,14 +23,14 @@ import com.amazon.speech.ui.SimpleCard;
 import com.amazonaws.util.json.JSONObject;
 
 
-public class OutLoudSpeechlet implements Speechlet {
+public class HelloWorldSpeechlet implements Speechlet {
 
-  private static final Logger log = LoggerFactory.getLogger(OutLoudSpeechlet.class);
-  private static final String RESET_URL = "https://amazonechohackathon.herokuapp.com/reset";
+  //private static final Logger log = LoggerFactory.getLogger(SavvyConsumerSpeechlet.class);
+  private static OutLoudManager manager;
   private static String WEB_SERVER_URL = "https://amazonechohackathon.herokuapp.com/whobuzzfirst";
   private final String welcome = "Opening game clip. For this game, please open our web link (blank) and enter your name.  Once everyone is done adding their names and the round begins, the first person to press the button make speak and receive points for every correct answer.  For assistance, you can say help.  When you are ready to play say begin.";
-  private final String initial = "The next question for you is: ";
-  private OutLoudManager manager = new OutLoudManager();
+  
+  
   @Override
   /**
    * @param
@@ -38,17 +38,19 @@ public class OutLoudSpeechlet implements Speechlet {
    * @return
    */
   public void onSessionStarted(final SessionStartedRequest request,final Session session) throws SpeechletException {
-    log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
-        session.getSessionId());
+    //log.info("onSessionStarted requestId={}, sessionId={}", request.getRequestId(),
+       // session.getSessionId());
     // Initialize the game manager that populates the Session with questions and aswers
+    manager = new OutLoudManager();
+    
   }
 
   @Override
   public SpeechletResponse onLaunch(LaunchRequest request, Session session) throws SpeechletException {
     
     // First part should be a welcome second should be the details of the game
-    log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
-        session.getSessionId());
+    //log.info("onLaunch requestId={}, sessionId={}", request.getRequestId(),
+        //session.getSessionId());
     String reprompt = manager.getRandomReprompt();
     //Adding the welcome message to the first question
     return getSpeechletResponse(welcome,reprompt,true);
@@ -56,8 +58,8 @@ public class OutLoudSpeechlet implements Speechlet {
 
   @Override
   public SpeechletResponse onIntent(final IntentRequest request, final Session session) throws SpeechletException {
-    log.info("onIntent requestId={}, sessionId={}", request.getRequestId(),
-        session.getSessionId());
+    //log.info("onIntent requestId={}, sessionId={}", request.getRequestId(),
+        //session.getSessionId());
     //Getting the intent that has the information of the response
     Intent intent = request.getIntent();
     String intentName = (intent != null)?intent.getName():null;
@@ -66,18 +68,13 @@ public class OutLoudSpeechlet implements Speechlet {
     if ("OutLoudIntent".equals(intentName)) {
         // get the answer from the user and check the answer
         connectToServer(WEB_SERVER_URL);
-        resetServer(RESET_URL);
-        return checkUserAnswer(intent,session,manager.getCurrentPlayer());
+        return checkUserAnswer(intent,session);
     }
     else if("InitialIntent".equals(intentName)){
         String question = manager.getRandomQuestion();
         manager.setCurrentQuestion(question);
         String reprompt = manager.getRandomReprompt();
-        return getSpeechletResponse(initial + question,reprompt,true);
-    }
-    else if("RepeatIntent".equals(intentName)){
-      String reprompt = manager.getRandomReprompt();
-      return getSpeechletResponse(manager.getCurrentQuestion(),reprompt, true);
+        return getSpeechletResponse(question,reprompt,true);
     }
     else if ("AMAZON.HelpIntent".equals(intentName)) {
       // Create a text output
@@ -92,8 +89,8 @@ public class OutLoudSpeechlet implements Speechlet {
   @Override
   public void onSessionEnded(SessionEndedRequest request, Session session) throws SpeechletException {
     // TODO Auto-generated method stub
-    log.info("onSessionEnded requestId={}, sessionId={}", request.getRequestId(),
-        session.getSessionId());
+    //log.info("onSessionEnded requestId={}, sessionId={}", request.getRequestId(),
+    //    session.getSessionId());
     
   }
   
@@ -104,20 +101,20 @@ public class OutLoudSpeechlet implements Speechlet {
    * @param session
    * @return
    */
-  private SpeechletResponse checkUserAnswer(Intent intent, Session session, String name){
+  private SpeechletResponse checkUserAnswer(Intent intent, Session session){
     // Ask the manager to check the answer if it was correct 
     String finalResult;
     String nextQuestion = manager.getRandomQuestion();
     String userAnswer = intent.getSlot("Answer").getValue();
     boolean result = manager.getResult(userAnswer);
     if(result){
-      finalResult = String.format("Great Job %s, That is the correct answer! One point for you", name);
+      finalResult = "That is the correct answer! One point for you";
     }
     else{
-      finalResult = "That is incorrect, maybe next time. ";
+      finalResult = "That is incorrect, maybe next time";
     }
     manager.setCurrentQuestion(nextQuestion);
-    nextQuestion = finalResult + initial+ nextQuestion;
+    nextQuestion = finalResult + nextQuestion;
     String reprompt = manager.getRandomReprompt();
     return getSpeechletResponse(nextQuestion,reprompt,true);
   }
@@ -152,10 +149,6 @@ public class OutLoudSpeechlet implements Speechlet {
     }
   }
   
-  /**
-   * 
-   * @param stringUrl
-   */
   private void connectToServer(String stringUrl){
     HttpURLConnection connection = null;
     try{
@@ -182,19 +175,5 @@ public class OutLoudSpeechlet implements Speechlet {
       e.printStackTrace();
     }
   }
-  
-  private void resetServer(String stringUrl){
-    HttpURLConnection connection = null;
-    try{
-      // SETTING UP THE CONNECTION
-      URL url = new URL(stringUrl);
-      connection = (HttpURLConnection)url.openConnection();
-      connection.setRequestMethod("POST");
-      connection.disconnect();
-    }catch(Exception e){
-      e.printStackTrace();
-    }
-  }
 
 }
-
