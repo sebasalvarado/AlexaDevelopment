@@ -95,7 +95,7 @@ public class OutLoudManager {
     }
   }
 
-  public String getEveryOneScore(){
+  public String getNameOfHighestScore(){
     List<Map.Entry<String,Integer>> entryList = new ArrayList<Map.Entry<String, Integer>>(sortByValue(scores).entrySet());
     Map.Entry<String, Integer> lastEntry = entryList.get(entryList.size()-1);
     String playerName = lastEntry.getKey();
