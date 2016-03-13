@@ -1,9 +1,7 @@
 package outloud;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+
 import outloud.Question;
 
 public class OutLoudManager {
@@ -85,6 +83,42 @@ public class OutLoudManager {
   public void setCurrentQuestion(String currentQuestion) {
     this.currentQuestion = currentQuestion;
   }
-  
+
+  private HashMap<String, Integer> scores = new HashMap<String, Integer>();
+
+  public void addScoreForPlayer(String playerName){
+    if(!scores.containsKey(playerName)){
+      scores.put(playerName, 1);
+    }else{
+      int currentscore = scores.get(playerName);
+      scores.put(playerName, currentscore + 1);
+    }
+  }
+
+  public String getEveryOneScore(){
+    List<Map.Entry<String,Integer>> entryList = new ArrayList<Map.Entry<String, Integer>>(sortByValue(scores).entrySet());
+    Map.Entry<String, Integer> lastEntry = entryList.get(entryList.size()-1);
+    String playerName = lastEntry.getKey();
+    int value = lastEntry.getValue();
+    return playerName + " " + value;
+  }
+
+  private Map sortByValue(Map map) {
+    List list = new LinkedList(map.entrySet());
+    Collections.sort(list, new Comparator() {
+      public int compare(Object o1, Object o2) {
+        return ((Comparable) ((Map.Entry) (o1)).getValue())
+                .compareTo(((Map.Entry) (o2)).getValue());
+      }
+    });
+
+    Map result = new LinkedHashMap();
+    for (Iterator it = list.iterator(); it.hasNext();) {
+      Map.Entry entry = (Map.Entry)it.next();
+      result.put(entry.getKey(), entry.getValue());
+    }
+    return result;
+  }
+
 
 }
